@@ -18,7 +18,9 @@
                 <div class="col-md-2">
                     <select name="variant" id="" class="form-control">
                         <option selected disabled>--Select A Variant--</option>
-
+                        {% for title in variant_list %}
+                        <option value={{ title }}>{{ title }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
@@ -135,3 +137,8 @@
         </div>
     </div>
 {% endblock %}
+
+
+{% block scripts %}
+
+{% endblock scripts %}
