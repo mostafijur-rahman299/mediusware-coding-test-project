@@ -2,6 +2,23 @@
 
 {% block title %} Product List {% endblock %}
 
+{% block style %}
+<style>
+    .select2-selection__rendered {
+        line-height: 36px !important;
+    }
+    .select2-container .select2-selection--single {
+        height: 36px !important;
+    }
+    .select2-selection__arrow {
+        height: 36px !important;
+    }
+    optgroup{
+        color: grey;
+    }
+</style>
+{% endblock style %}
+
 {% block content %}
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -16,10 +33,14 @@
                     <input type="text" name="title" placeholder="Product Title" class="form-control">
                 </div>
                 <div class="col-md-2">
-                    <select name="variant" id="" class="form-control">
+                    <select name="variant" id="select-product-variant" class="form-control">
                         <option selected disabled>--Select A Variant--</option>
-                        {% for title in variant_list %}
-                        <option value={{ title }}>{{ title }}</option>
+                        {% for variant, product_variants in variant_list.items %}
+                            <optgroup label="{{ variant }}">
+                                {% for product_variant in product_variants %}
+                                <option value={{ product_variant }}>{{ product_variant }}</option>
+                                {% endfor %}
+                            </optgroup>
                         {% endfor %}
                     </select>
                 </div>
@@ -37,6 +58,11 @@
                 <div class="col-md-2">
                     <input type="date" name="date" placeholder="Date" class="form-control">
                 </div>
+
+
+                
+
+
                 <div class="col-md-1">
                     <button type="submit" class="btn btn-primary float-right"><i class="fa fa-search"></i></button>
                 </div>
@@ -111,7 +137,7 @@
                         <nav aria-label="Page navigation example">
                             <ul class="pagination">
                                 {% if page_obj.has_previous %}
-                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&lt;</a></li>
+                                <li class="page-item"><a class="page-link" href="{{ request.path }}?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&lt;</a></li>
                                 {% else %}
                                 <li class="page-item disabled"><span class="page-link" >&lt;</span></li>
                                 {% endif %}
@@ -119,11 +145,11 @@
                                 {% if page_obj.number == i %}
                                     <li class="page-item active"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span></li>
                                 {% else %}
-                                    <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                                    <li class="page-item"><a class="page-link" href="{{ request.path }}?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a></li>
                                 {% endif %}
                                 {% endfor %}
                                 {% if page_obj.has_next %}
-                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&gt;</a></li>
+                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&gt;</a></li>
                                 {% else %}
                                 <li class="page-item disabled"><span class="page-link">&gt;</span></li>
                                 {% endif %}
@@ -140,5 +166,10 @@
 
 
 {% block scripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#select-product-variant').select2({});
+    })
 
+</script>
 {% endblock scripts %}

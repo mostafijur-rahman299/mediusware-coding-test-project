@@ -23,8 +23,6 @@ class ProductListView(generic.ListView):
     
     def get_queryset(self):
         all_products = Product.objects.all()
-        price_from = self.request.GET.get('price_from')
-        price_to = self.request.GET.get('price_to')
         
         # Filtering data
         if self.request.GET.get('title'):
@@ -34,6 +32,9 @@ class ProductListView(generic.ListView):
         if self.request.GET.get('date'):
             all_products = all_products.filter(created_at__date=self.request.GET.get('date'))
             
+        # Filtering products data according to price_from and/or price_to
+        price_from = self.request.GET.get('price_from')
+        price_to = self.request.GET.get('price_to')
         if  price_from and price_to:
             all_products = all_products.filter(Q(productvariantprice__price__gte=price_from)&Q(productvariantprice__price__lte=price_to)).distinct()
         elif price_from and not price_to:
@@ -46,7 +47,13 @@ class ProductListView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super(ProductListView, self).get_context_data(**kwargs)
         context['product'] = True
-        context['variant_list'] = ProductVariant.objects.values_list("variant_title", flat=True).distinct()
+        
+        # Taking variant data as dict due to items and sub items selection feature
+        variants = Variant.objects.all()
+        variant_dict = {}
+        for variant in variants:
+            variant_dict[variant.title] = list(ProductVariant.objects.filter(variant=variant).values_list("variant_title", flat=True).distinct())
+        context['variant_list'] = variant_dict
+            
         return context
     
-
