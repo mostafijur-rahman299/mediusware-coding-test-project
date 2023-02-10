@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from product.models import Product, ProductImage, ProductVariant
+from product.models import Product, ProductImage, ProductVariant, ProductVariantPrice
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -20,7 +20,14 @@ class ProductVariantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductVariant
-        fields = ("id", "variant_title", )   
+        fields = ("id", "variant_title", )
+        
+
+class ProductVariantPriceSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = ProductVariantPrice
+        fields = ("id", "title", "", )
         
         
         

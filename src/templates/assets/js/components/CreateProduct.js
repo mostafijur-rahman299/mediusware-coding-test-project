@@ -1,12 +1,11 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import TagsInput from 'react-tagsinput';
 import 'react-tagsinput/react-tagsinput.css';
 import Dropzone from 'react-dropzone'
 import axios from 'axios';
 
 
-const CreateProduct = (props) => {
-
+const CreateProduct = (props) => {    
     const [productVariantPrices, setProductVariantPrices] = useState([])
 
     const [productVariants, setProductVariant] = useState([
@@ -17,6 +16,25 @@ const CreateProduct = (props) => {
     ])
     const [productImage, setProductImage] = useState(null)
     const [productDetails, setProductDetails] = useState({})
+
+    const fetchProductData = () => {
+        axios({
+            url: `/product/api/product-info/${props.product_id}`,
+            method: "get",
+        })
+        .then(res => {
+            setProductVariantPrices(res.data.product_variant_prices)
+            setProductVariant(res.data.product_variants)
+            setProductDetails(res.data.product_details)
+        })
+        .catch(err => console.error(err))
+    }
+
+    useEffect(() => {
+      if(props.is_for_update == "true"){
+        fetchProductData()
+      }
+    }, [props.is_for_update])
 
     // handle click event of the Add button
     const handleAddClick = () => {
@@ -106,18 +124,33 @@ const CreateProduct = (props) => {
         formData.append("product_variants", JSON.stringify(productVariants));
         formData.append("product_variant_prices", JSON.stringify(productVariantPrices));
 
-        axios({
-            url: '/product/api/create-product/',
-            method: "post",
-            data: formData,
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-        })
-        .then(res => {
-            window.location.href = "/product/list/"
-        })
-        .catch(err => console.error(err))
+        if(props.is_for_update == "true"){
+            axios({
+                url: `/product/api/update-product/${props.product_id}/`,
+                method: "put",
+                data: formData,
+                headers: {
+                "Content-Type": "multipart/form-data",
+                },
+            })
+            .then(res => {
+                window.location.href = "/product/list/"
+            })
+            .catch(err => console.error(err))
+        }else{
+            axios({
+                url: '/product/api/create-product/',
+                method: "post",
+                data: formData,
+                headers: {
+                "Content-Type": "multipart/form-data",
+                },
+            })
+            .then(res => {
+                window.location.href = "/product/list/"
+            })
+            .catch(err => console.error(err))
+        }
 
     }
 
@@ -242,8 +275,8 @@ const CreateProduct = (props) => {
                                                 return (
                                                     <tr key={index}>
                                                         <td>{productVariantPrice.title}</td>
-                                                        <td><input name="price" onChange={(e) => onProductVariantPriceChange(e, productVariantPrice.title)} className="form-control" type="text"/></td>
-                                                        <td><input name="stock" onChange={(e) => onProductVariantPriceChange(e, productVariantPrice.title)} className="form-control" type="text"/></td>
+                                                        <td><input name="price" value={productVariantPrice.price} onChange={(e) => onProductVariantPriceChange(e, productVariantPrice.title)} className="form-control" type="text"/></td>
+                                                        <td><input name="stock" value={productVariantPrice.stock} onChange={(e) => onProductVariantPriceChange(e, productVariantPrice.title)} className="form-control" type="text"/></td>
                                                     </tr>
                                                 )
                                             })
@@ -256,7 +289,7 @@ const CreateProduct = (props) => {
                     </div>
                 </div>
 
-                <button type="button" onClick={saveProduct} className="btn btn-lg btn-primary">Save</button>
+                <button type="button" onClick={saveProduct} className="btn btn-lg btn-primary">{props.is_for_update == "true" ? "Update" : "Save" }</button>
                 <button type="button" className="btn btn-secondary btn-lg">Cancel</button>
             </section>
         </div>

@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import CreateProduct from "./components/CreateProduct";
 
+
 // require('./bootstrap');
 // require('./sb-admin');
 
