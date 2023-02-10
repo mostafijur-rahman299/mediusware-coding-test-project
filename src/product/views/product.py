@@ -31,7 +31,7 @@ class ProductListView(generic.ListView):
     model = Product
     template_name = 'products/list.html'
     context_object_name = 'product_list'
-    paginate_by = 10
+    paginate_by = 2
     
     def get_queryset(self):
         all_products = Product.objects.all().order_by("-id")
